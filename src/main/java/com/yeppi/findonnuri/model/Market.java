@@ -32,6 +32,6 @@ public class Market {
     @Nullable
     public Double latitude;
 
-    @Field("last_updated_time")
-    public LocalDate lastUpdatedTime;
+    @Field("geo_updated_time")
+    public LocalDate geoUpdatedTime;
 }

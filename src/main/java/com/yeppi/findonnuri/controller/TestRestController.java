@@ -52,11 +52,17 @@ public class TestRestController {
             System.out.println("------------------------------------------------------------------");
             System.out.println("마켓명 : " + market.marketName + " , " + "마켓주소 : " + market.address);
             NaverMapGeocodeAPIResponse response = naverAPIService.getGeoCode(market.address);
-            if (!market.marketName.isEmpty() && response.addressInfos.length > 0) {
-                NaverMapGeocodeAPIResponse.AddressInfo info = response.addressInfos[0];
-                System.out.println("api 호출 결과 : " + "x(경도)-" + info.longtitude + ", y(위도)-" + info.latitude);
-                marketService.updateMarketGeoInfo(market.marketName, market.affiliatedMarketName, market.address, info.longtitude, info.latitude);
+
+            NaverMapGeocodeAPIResponse.AddressInfo[] addressInfo = response.addressInfos;
+            if (addressInfo.length == 0) {
+                //잘못된 주소지로 조회해서 x,y 좌표가 없는 경우
+                System.out.println("api 호출 결과 : " + "x(경도)-" + "null" + ", y(위도)-" + "null");
+                marketService.updateMarketGeoInfo(market.marketName, market.affiliatedMarketName, market.address, null, null);
+            } else {
+                System.out.println("api 호출 결과 : " + "x(경도)-" + addressInfo[0].longtitude + ", y(위도)-" + addressInfo[0].latitude);
+                marketService.updateMarketGeoInfo(market.marketName, market.affiliatedMarketName, market.address, addressInfo[0].longtitude, addressInfo[0].latitude);
             }
+
             marketService.updateMarketGeoLastUpdateDate(market.marketName, market.affiliatedMarketName, market.address);
         }
         String after = marketService.getMarketCntWhereGeoInfoNotUpdated() + "개 업데이트 더 해야됨 (after)";

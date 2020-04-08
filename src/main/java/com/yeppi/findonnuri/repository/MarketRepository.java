@@ -40,7 +40,9 @@ class CustomMarketRepositoryImpl implements CustomMarketRepository {
     @Override
     public long getMarketCntWhereGeoInfoNotUpdated() {
         Query query = new Query();
-        query.addCriteria(Criteria.where("last_updated_time").exists(false));
+        query.addCriteria(new Criteria().orOperator(
+                Criteria.where("geo_updated_time").exists(false),
+                Criteria.where("geo_updated_time").is(null)));
         List<Market> list = mongoTemplate.find(query, Market.class, "onnuri");
         return list.size();
     }
@@ -48,7 +50,9 @@ class CustomMarketRepositoryImpl implements CustomMarketRepository {
     @Override
     public List<Market> getMarketWhereGeoInfoNotUpdated(int limit) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("last_updated_time").exists(false)).limit(limit);
+        query.addCriteria(new Criteria().orOperator(
+                Criteria.where("geo_updated_time").exists(false),
+                Criteria.where("geo_updated_time").is(null)));
         List<Market> marketList = mongoTemplate.find(query, Market.class,"onnuri");
         return marketList;
     }
@@ -77,7 +81,6 @@ class CustomMarketRepositoryImpl implements CustomMarketRepository {
             update.set("latitude", market.latitude);
             update.set("longitude", market.longitude);
             mongoTemplate.updateMulti(query, update, Market.class);
-            //mongoTemplate.save(market,"onnuri");
             System.out.println(marketName + "/" + affiliatedAddress + "/" + marketAddress + " 의 위도/경도 값이 기록됨");
         }
     }
@@ -101,9 +104,8 @@ class CustomMarketRepositoryImpl implements CustomMarketRepository {
             Market market = (Market) iterator.next();
 
             Update update = new Update();
-            update.set("last_updated_time", LocalDateTime.now());
+            update.set("geo_updated_time", LocalDateTime.now());
             mongoTemplate.updateMulti(query, update, Market.class);
-            //mongoTemplate.save(market, "onnuri");
             System.out.println(marketName + "/" + affiliatedAddress + "/" + address + " 의 마지막 업데이트 시간이 기록됨");
         }
     }
