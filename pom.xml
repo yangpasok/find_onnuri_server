@@ -45,7 +45,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	</dependencies>
+
+        <!-- APACHE HTTP CLIENT, 웹모듈 사용을 위해-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
+    </dependencies>
 
 	<build>
 		<plugins>

@@ -1,8 +1,10 @@
 package com.yeppi.findonnuri.controller;
 
 import com.yeppi.findonnuri.model.Market;
+import com.yeppi.findonnuri.model.NaverMapGeocodeAPIResponse;
 import com.yeppi.findonnuri.model.Person;
 import com.yeppi.findonnuri.service.MarketService;
+import com.yeppi.findonnuri.service.NaverAPIService;
 import com.yeppi.findonnuri.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,9 @@ public class TestRestController {
     @Autowired
     private MarketService marketService;
 
+    @Autowired
+    private NaverAPIService naverAPIService;
+
     @RequestMapping(value="/testValue", method = RequestMethod.GET)
     public String getTestValue(){
         String TestValue = "레스트 컨트롤러 테스트";
@@ -36,15 +41,26 @@ public class TestRestController {
     }
 
     @GetMapping(value = "/getMarketInfo")
-    public List<Market> getMarketInfo() {
+    public String getMarketInfo() {
+        String before = marketService.getMarketCntWhereGeoInfoNotUpdated() + "개 업데이트 더 해야됨 (before)";
 
-        final List<Market> marketList = marketService.getMarketWhereGeoInfoNotUpdated(10);
-
+        final List<Market> marketList = marketService.getMarketWhereGeoInfoNotUpdated(5000);
+        System.out.println("총 " + marketList.size() + "개의 마켓이 검색됨");
         ListIterator iterator = marketList.listIterator();
         while (iterator.hasNext()) {
             Market market = (Market) iterator.next();
+            System.out.println("------------------------------------------------------------------");
             System.out.println("마켓명 : " + market.marketName + " , " + "마켓주소 : " + market.address);
+            NaverMapGeocodeAPIResponse response = naverAPIService.getGeoCode(market.address);
+            if (!market.marketName.isEmpty() && response.addressInfos.length > 0) {
+                NaverMapGeocodeAPIResponse.AddressInfo info = response.addressInfos[0];
+                System.out.println("api 호출 결과 : " + "x(경도)-" + info.longtitude + ", y(위도)-" + info.latitude);
+                marketService.updateMarketGeoInfo(market.marketName, market.affiliatedMarketName, market.address, info.longtitude, info.latitude);
+            }
+            marketService.updateMarketGeoLastUpdateDate(market.marketName, market.affiliatedMarketName, market.address);
         }
-        return marketList;
+        String after = marketService.getMarketCntWhereGeoInfoNotUpdated() + "개 업데이트 더 해야됨 (after)";
+
+        return before + "\n" + after;
     }
 }
