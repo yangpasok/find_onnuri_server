@@ -26,12 +26,8 @@ public class Market {
 
     public String address;
 
-    @Nullable
-    public Double longitude;
+    public Location location;
 
-    @Nullable
-    public Double latitude;
-
-    @Field("geo_updated_time")
-    public LocalDate geoUpdatedTime;
+    @Field("last_location_update_time")
+    public LocalDate lastLocationUpdateTime;
 }

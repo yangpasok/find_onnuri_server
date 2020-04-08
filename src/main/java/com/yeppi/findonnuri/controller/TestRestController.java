@@ -44,7 +44,7 @@ public class TestRestController {
     public String getMarketInfo() {
         String before = marketService.getMarketCntWhereGeoInfoNotUpdated() + "개 업데이트 더 해야됨 (before)";
 
-        final List<Market> marketList = marketService.getMarketWhereGeoInfoNotUpdated(5000);
+        final List<Market> marketList = marketService.getMarketWhereGeoInfoNotUpdated(10000);
         System.out.println("총 " + marketList.size() + "개의 마켓이 검색됨");
         ListIterator iterator = marketList.listIterator();
         while (iterator.hasNext()) {
